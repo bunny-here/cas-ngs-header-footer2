@@ -171,23 +171,29 @@
 
         function buildDocumentScrollCycle() {
           var docHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-          var numCycles = Math.max(2, Math.ceil((docHeight - window.innerHeight) / window.innerHeight));
+          var viewportCount = Math.max(3, Math.ceil((docHeight - window.innerHeight) / window.innerHeight) + 1);
+          var forwardScreen = 0;
 
           ScrollTrigger.create({
             trigger: document.body,
             start: 'top top',
             end: 'bottom bottom',
-            scrub: 1.8,
+            scrub: 1.6,
             invalidateOnRefresh: true,
             onUpdate: function (self) {
-              var forwardStep = self.progress * numCycles * poseCount;
-              var idxA = Math.floor(forwardStep) % poseCount;
-              var idxB = idxA >= poseCount - 1 ? 0 : idxA + 1;
-              var local = forwardStep - Math.floor(forwardStep);
-              var eased = local * local * (3 - 2 * local);
-              var A = forwardCyclePoses[idxA];
-              var B = forwardCyclePoses[idxB];
-              var cycleYaw = Math.floor(forwardStep / poseCount) * 2 * Math.PI;
+              var scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+              var screenIndex = Math.max(0, Math.floor(scrollY / window.innerHeight));
+              var easedScreen = Math.max(forwardScreen, screenIndex);
+              if (easedScreen > forwardScreen) {
+                forwardScreen = easedScreen;
+              }
+
+              var localScreenProgress = Math.min(1, Math.max(0, (scrollY / window.innerHeight) - forwardScreen));
+              var eased = localScreenProgress * localScreenProgress * (3 - 2 * localScreenProgress);
+              var cycleIndex = forwardScreen % poseCount;
+              var A = forwardCyclePoses[cycleIndex];
+              var B = (cycleIndex >= poseCount - 1) ? forwardCyclePoses[0] : forwardCyclePoses[cycleIndex + 1];
+              var cycleYaw = Math.floor(forwardScreen / poseCount) * 2 * Math.PI;
 
               modelPivot.rotation.x = A.rot.x + (B.rot.x - A.rot.x) * eased;
               modelPivot.rotation.y = A.rot.y + (B.rot.y - A.rot.y) * eased + cycleYaw;
@@ -202,6 +208,10 @@
               modelPivot.scale.z = (A.scale.z + (B.scale.z - A.scale.z) * eased) * scaleMultiplier * mobileScale;
 
               camera.position.z = A.camZ + (B.camZ - A.camZ) * eased;
+
+              if (screenIndex === 0 && scrollY <= 2) {
+                forwardScreen = 0;
+              }
             }
           });
         }
