@@ -105,6 +105,13 @@
         { rot: { x: 0.95, y: 2.10, z: 0.50 }, pos: { x: -0.55, y: 0.10, z: 1.25 }, camZ: 5.4, scale: { x: 1.6, y: 3.6, z: 1.6 } },
         { rot: { x: 1.70, y: 3.50, z: 1.30 }, pos: { x: 0.45, y: -0.20, z: 0.95 }, camZ: 6.2, scale: { x: 1.2, y: 3.0, z: 1.2 } }
       ];
+      var wrapPose = {
+        rot: { x: 0.90, y: 4.10, z: 0.75 },
+        pos: { x: 0.18, y: -0.02, z: 1.05 },
+        camZ: 5.9,
+        scale: { x: 1.35, y: 3.35, z: 1.35 }
+      };
+      var forwardCyclePoses = [basePoses[0], basePoses[1], basePoses[2], wrapPose];
 
       var p1 = basePoses[0];
       modelPivot.rotation.set(p1.rot.x, p1.rot.y, p1.rot.z);
@@ -129,7 +136,7 @@
         if (prefersReduced) return;
         cyclingWired = true;
 
-        var poseCount = basePoses.length;
+        var poseCount = forwardCyclePoses.length;
 
         /* Discover the content sections that drive the pose cycle.
            Prefer the theme's own section classes (these drove the original
@@ -173,14 +180,14 @@
             scrub: 1.8,
             invalidateOnRefresh: true,
             onUpdate: function (self) {
-              var step = self.progress * numCycles * poseCount;
-              var idxA = Math.floor(step) % poseCount;
-              var idxB = (idxA + 1) % poseCount;
-              var local = step - Math.floor(step);
+              var forwardStep = self.progress * numCycles * poseCount;
+              var idxA = Math.floor(forwardStep) % poseCount;
+              var idxB = idxA >= poseCount - 1 ? 0 : idxA + 1;
+              var local = forwardStep - Math.floor(forwardStep);
               var eased = local * local * (3 - 2 * local);
-              var A = basePoses[idxA];
-              var B = basePoses[idxB];
-              var cycleYaw = Math.floor(step / poseCount) * 2 * Math.PI;
+              var A = forwardCyclePoses[idxA];
+              var B = forwardCyclePoses[idxB];
+              var cycleYaw = Math.floor(forwardStep / poseCount) * 2 * Math.PI;
 
               modelPivot.rotation.x = A.rot.x + (B.rot.x - A.rot.x) * eased;
               modelPivot.rotation.y = A.rot.y + (B.rot.y - A.rot.y) * eased + cycleYaw;
@@ -210,7 +217,7 @@
             var targetStep = i + 1;
             var poseIdx = targetStep % poseCount;
             var cycle = Math.floor(targetStep / poseCount);
-            var targetPose = basePoses[poseIdx];
+            var targetPose = forwardCyclePoses[poseIdx];
             var yAccum = (cycle * 2 * Math.PI);
             var isLastTransition = (i === sections.length - 2);
             gsap.timeline({
