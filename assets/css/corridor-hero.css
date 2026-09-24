@@ -54,7 +54,7 @@ html.cor3d-active { overflow-x: clip; }
   background: var(--cor3d-bg, #f8f6f0);
   isolation: isolate;
   will-change: transform, opacity;
-  z-index: 9990;
+  z-index: 10;
   /* default: parked below the viewport, so a below-the-fold corridor does not
      cover the page before the engine positions the stage; the engine takes
      over this transform as soon as the corridor scrolls into range */
