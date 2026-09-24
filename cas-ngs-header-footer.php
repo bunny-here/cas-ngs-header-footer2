@@ -394,21 +394,27 @@ function cas_ngs_header_render_callback( $attributes ) {
 
 		$label    = esc_html( $tab['label'] );
 		$url      = esc_url( $tab['url'] ? $tab['url'] : '#' );
-		$active   = ! empty( $tab['active'] );
+		$active   = false;
 		$children = is_array( $tab['children'] ) ? $tab['children'] : array();
 
 		$current_url = home_url( add_query_arg( array() ) );
 		$current_path = wp_parse_url( $current_url, PHP_URL_PATH );
 		$tab_path      = wp_parse_url( $url, PHP_URL_PATH );
-		if ( ! $tab_path ) {
-			$tab_path = '/';
+		if ( ! $tab_path || '#' === $tab_path ) {
+			$tab_path = null;
 		}
-		if ( '/' !== $current_path && '/' !== $tab_path ) {
+		if ( $current_path && $tab_path ) {
 			$current_path = rtrim( $current_path, '/' );
 			$tab_path     = rtrim( $tab_path, '/' );
-		}
-		if ( $current_path === $tab_path ) {
-			$active = true;
+			if ( '/' === $current_path ) {
+				$current_path = '';
+			}
+			if ( '/' === $tab_path ) {
+				$tab_path = '';
+			}
+			if ( $current_path === $tab_path ) {
+				$active = true;
+			}
 		}
 
 		if ( $children ) {

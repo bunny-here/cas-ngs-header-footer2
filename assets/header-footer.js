@@ -380,30 +380,46 @@
   }
 
   function normalizePath(url) {
+    if (!url || url === "#" || url === "") return null;
     try {
       var parsed = new URL(url, window.location.href);
+      if (["javascript:", "mailto:", "tel:"].indexOf(parsed.protocol.toLowerCase()) !== -1) return null;
       var path = parsed.pathname || "/";
       if (path.length > 1 && path.endsWith("/")) path = path.replace(/\/+$/, "");
       return path || "/";
     } catch (err) {
-      return "/";
+      return null;
     }
   }
 
   function syncCurrentPageState(header) {
     var currentPath = normalizePath(window.location.href);
-    var items = Array.prototype.slice.call(header.querySelectorAll(".cas-dock-item"));
-    var mobileItems = Array.prototype.slice.call(header.querySelectorAll(".cas-m-item"));
+    var items = Array.prototype.slice.call(header.querySelectorAll(".cas-dock-item, .cas-m-item"));
+    var matched = null;
 
-    items.concat(mobileItems).forEach(function (link) {
+    items.forEach(function (link) {
+      link.classList.remove("is-active");
+      link.removeAttribute("aria-current");
+    });
+
+    if (!currentPath) return;
+
+    for (var i = 0; i < items.length; i++) {
+      var link = items[i];
       var href = link.getAttribute("href");
       var tabUrl = link.getAttribute("data-cas-tab-url");
-      var target = href || tabUrl;
-      var isCurrent = !!target && normalizePath(target) === currentPath;
-      link.classList.toggle("is-active", isCurrent);
-      if (isCurrent) link.setAttribute("aria-current", "page");
-      else link.removeAttribute("aria-current");
-    });
+      var target = href || tabUrl || "";
+      var targetPath = normalizePath(target);
+      if (targetPath && targetPath === currentPath) {
+        matched = link;
+        break;
+      }
+    }
+
+    if (matched) {
+      matched.classList.add("is-active");
+      matched.setAttribute("aria-current", "page");
+    }
   }
 
   function initHeader(header) {
