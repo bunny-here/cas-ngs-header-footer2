@@ -22,7 +22,10 @@
   document.documentElement.classList.add('cas-splash-active');
   document.body.classList.add('cas-splash-active');
 
-  var logoTargets = [
+  const COLOR_PRIMARY = '#000000';
+  const COLOR_TEXT = '#000000';
+
+  const logoTargets = [
     { topY: 100, botY: 412 },
     { topY: 200, botY: 300 },
     { topY: 160, botY: 340 },
@@ -32,9 +35,14 @@
     { topY: 100, botY: 412 }
   ];
 
-  var centerY = 250;
-  var waveAmplitude = 130;
-  var animState = { time: 0, waveMix: 0, logoMix: 0 };
+  const centerY = 250;
+  const waveAmplitude = 130;
+
+  let animState = {
+    time: 0,
+    waveMix: 0,
+    logoMix: 0
+  };
 
   function finishSplash() {
     try {
@@ -51,18 +59,40 @@
     }, 900);
   }
 
+  function setup() {
+    for (let i = 0; i < 7; i++) {
+      gsap.set('#n' + i + '-top', { opacity: 0 });
+      gsap.set('#n' + i + '-bot', { opacity: 0 });
+      gsap.set('#b' + i, { opacity: 0 });
+    }
+
+    gsap.set('#dna-mark', {
+      x: 270,
+      scale: 0.50,
+      transformOrigin: 'center center',
+      opacity: 1
+    });
+
+    gsap.set('#brand-text', {
+      fill: COLOR_TEXT
+    });
+  }
+
   function updateFrame() {
-    for (var i = 0; i < 7; i++) {
-      var topNode = document.getElementById('n' + i + '-top');
-      var botNode = document.getElementById('n' + i + '-bot');
-      var bond = document.getElementById('b' + i);
-      var target = logoTargets[i];
-      var phase = animState.time + (i * 0.7);
-      var waveOffset = Math.sin(phase) * waveAmplitude * animState.waveMix;
-      var waveTopY = centerY - waveOffset;
-      var waveBotY = centerY + waveOffset;
-      var finalTopY = window.gsap.utils.interpolate(waveTopY, target.topY, animState.logoMix);
-      var finalBotY = window.gsap.utils.interpolate(waveBotY, target.botY, animState.logoMix);
+    for (let i = 0; i < 7; i++) {
+      const topNode = document.getElementById('n' + i + '-top');
+      const botNode = document.getElementById('n' + i + '-bot');
+      const bond = document.getElementById('b' + i);
+      const target = logoTargets[i];
+
+      const phase = animState.time + (i * 0.7);
+      const waveOffset = Math.sin(phase) * waveAmplitude * animState.waveMix;
+
+      const waveTopY = centerY - waveOffset;
+      const waveBotY = centerY + waveOffset;
+
+      const finalTopY = gsap.utils.interpolate(waveTopY, target.topY, animState.logoMix);
+      const finalBotY = gsap.utils.interpolate(waveBotY, target.botY, animState.logoMix);
 
       topNode.setAttribute('cy', finalTopY);
       botNode.setAttribute('cy', finalBotY);
@@ -77,21 +107,10 @@
       return;
     }
 
-    for (var i = 0; i < 7; i++) {
-      window.gsap.set('#n' + i + '-top', { opacity: 0 });
-      window.gsap.set('#n' + i + '-bot', { opacity: 0 });
-      window.gsap.set('#b' + i, { opacity: 0 });
-    }
+    setup();
 
-    window.gsap.set('#dna-mark', {
-      x: 270,
-      scale: 0.50,
-      transformOrigin: 'center center',
-      opacity: 1
-    });
-
-    var initialDots = ['#n0-top', '#n1-top', '#n2-bot', '#n3-bot', '#n4-bot', '#n5-top', '#n6-top'];
-    var tl = window.gsap.timeline({ onComplete: finishSplash, onUpdate: updateFrame });
+    const tl = gsap.timeline({ onUpdate: updateFrame, onComplete: finishSplash });
+    const initialDots = ['#n0-top', '#n1-top', '#n2-bot', '#n3-bot', '#n4-bot', '#n5-top', '#n6-top'];
 
     initialDots.forEach(function (dotId, i) {
       tl.to(dotId, {
@@ -138,5 +157,9 @@
     }, '+=0.1');
   }
 
-  window.addEventListener('load', startSplash, { once: true });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startSplash, { once: true });
+  } else {
+    startSplash();
+  }
 })();
