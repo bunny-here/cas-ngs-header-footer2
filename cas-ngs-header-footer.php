@@ -37,6 +37,86 @@ function cas_ngs_suite_url() {
 	return trailingslashit( plugin_dir_url( __FILE__ ) );
 }
 
+function cas_ngs_splash_enqueue_assets() {
+	if ( is_admin() || wp_doing_ajax() ) {
+		return;
+	}
+
+	if ( isset( $_GET['cas-splash'] ) && '0' === (string) $_GET['cas-splash'] ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'cas-ngs-splash',
+		cas_ngs_suite_url() . 'assets/css/cas-splash.css',
+		array(),
+		CAS_NGS_SUITE_VERSION,
+		'all'
+	);
+
+	wp_enqueue_script(
+		'cas-ngs-gsap',
+		'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js',
+		array(),
+		'3.12.2',
+		true
+	);
+
+	wp_enqueue_script(
+		'cas-ngs-splash',
+		cas_ngs_suite_url() . 'assets/js/cas-splash.js',
+		array( 'cas-ngs-gsap' ),
+		CAS_NGS_SUITE_VERSION,
+		true
+	);
+}
+add_action( 'wp_enqueue_scripts', 'cas_ngs_splash_enqueue_assets' );
+
+function cas_ngs_splash_markup() {
+	if ( is_admin() || wp_doing_ajax() ) {
+		return;
+	}
+
+	if ( isset( $_GET['cas-splash'] ) && '0' === (string) $_GET['cas-splash'] ) {
+		return;
+	}
+
+	echo '<div id="cas-splash" aria-live="polite" aria-hidden="false">'
+		. '<div class="cas-splash-inner">'
+		. '<svg viewBox="0 0 1100 500" role="img" aria-label="CAS-NGS splash animation">'
+		. '<defs><clipPath id="cas-splash-clip"><rect id="clip-rect" x="320" y="160" width="10" height="120" rx="12"></rect></clipPath></defs>'
+		. '<g id="dna-mark">'
+		. '<line id="b0" class="bond" x1="300" y1="90" x2="300" y2="412"></line>'
+		. '<line id="b1" class="bond" x1="340" y1="75" x2="340" y2="420"></line>'
+		. '<line id="b2" class="bond" x1="380" y1="110" x2="380" y2="400"></line>'
+		. '<line id="b3" class="bond" x1="420" y1="80" x2="420" y2="425"></line>'
+		. '<line id="b4" class="bond" x1="460" y1="105" x2="460" y2="390"></line>'
+		. '<line id="b5" class="bond" x1="500" y1="78" x2="500" y2="420"></line>'
+		. '<line id="b6" class="bond" x1="540" y1="100" x2="540" y2="410"></line>'
+		. '<circle id="n0-top" class="node" cx="300" cy="100" r="10"></circle>'
+		. '<circle id="n0-bot" class="node" cx="300" cy="412" r="10"></circle>'
+		. '<circle id="n1-top" class="node" cx="340" cy="85" r="10"></circle>'
+		. '<circle id="n1-bot" class="node" cx="340" cy="420" r="10"></circle>'
+		. '<circle id="n2-top" class="node" cx="380" cy="110" r="10"></circle>'
+		. '<circle id="n2-bot" class="node" cx="380" cy="400" r="10"></circle>'
+		. '<circle id="n3-top" class="node" cx="420" cy="88" r="10"></circle>'
+		. '<circle id="n3-bot" class="node" cx="420" cy="425" r="10"></circle>'
+		. '<circle id="n4-top" class="node" cx="460" cy="105" r="10"></circle>'
+		. '<circle id="n4-bot" class="node" cx="460" cy="390" r="10"></circle>'
+		. '<circle id="n5-top" class="node" cx="500" cy="78" r="10"></circle>'
+		. '<circle id="n5-bot" class="node" cx="500" cy="420" r="10"></circle>'
+		. '<circle id="n6-top" class="node" cx="540" cy="100" r="10"></circle>'
+		. '<circle id="n6-bot" class="node" cx="540" cy="410" r="10"></circle>'
+		. '</g>'
+		. '<g clip-path="url(#cas-splash-clip)">'
+		. '<text x="420" y="255" class="company-text">CAS-NGS</text>'
+		. '</g>'
+		. '</svg>'
+		. '</div>'
+		. '</div>';
+}
+add_action( 'wp_body_open', 'cas_ngs_splash_markup', 1 );
+
 // Biotech blocks bootstrap (Acts 0-4 + DNA background + pipeline hero).
 // Registers those blocks, their editor script, the GSAP + Three.js asset
 // pipeline and their shortcodes. It does NOT auto-inject anything.
