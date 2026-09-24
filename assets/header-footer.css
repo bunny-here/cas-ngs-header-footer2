@@ -157,10 +157,10 @@ html.cas-lock body {
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: color-mix(in srgb, var(--sylva-t1) 74%, transparent);
+  color: color-mix(in srgb, var(--sylva-t1) 88%, #000 12%);
   font-family: inherit;
   font-size: 13.5px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.01em;
   line-height: 1;
   text-decoration: none;
@@ -465,10 +465,10 @@ html.cas-lock body {
   border: 0;
   border-bottom: 1px solid color-mix(in srgb, var(--sylva-t1) 14%, transparent);
   background: none;
-  color: var(--sylva-t1);
+  color: color-mix(in srgb, var(--sylva-t1) 88%, #000 12%);
   font-family: inherit;
   font-size: 21px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.01em;
   text-align: left;
   text-decoration: none;

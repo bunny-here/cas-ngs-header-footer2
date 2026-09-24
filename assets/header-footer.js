@@ -379,6 +379,33 @@
     paint();
   }
 
+  function normalizePath(url) {
+    try {
+      var parsed = new URL(url, window.location.href);
+      var path = parsed.pathname || "/";
+      if (path.length > 1 && path.endsWith("/")) path = path.replace(/\/+$/, "");
+      return path || "/";
+    } catch (err) {
+      return "/";
+    }
+  }
+
+  function syncCurrentPageState(header) {
+    var currentPath = normalizePath(window.location.href);
+    var items = Array.prototype.slice.call(header.querySelectorAll(".cas-dock-item"));
+    var mobileItems = Array.prototype.slice.call(header.querySelectorAll(".cas-m-item"));
+
+    items.concat(mobileItems).forEach(function (link) {
+      var href = link.getAttribute("href");
+      var tabUrl = link.getAttribute("data-cas-tab-url");
+      var target = href || tabUrl;
+      var isCurrent = !!target && normalizePath(target) === currentPath;
+      link.classList.toggle("is-active", isCurrent);
+      if (isCurrent) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+  }
+
   function initHeader(header) {
     if (header.dataset.casInit) return;
     header.dataset.casInit = "1";
@@ -389,6 +416,7 @@
       initMobile(header);
       initAmbient(header.querySelector(".cas-dock-canvas"));
       initScroll(header);
+      syncCurrentPageState(header);
     } catch (err) {
       console.error("[CAS Header] initialisation failed:", err);
     }

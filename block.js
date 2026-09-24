@@ -113,6 +113,7 @@
             type: "button",
             className: "cas-dock-item cas-dock-item--parent" + (tab.active ? " is-active" : ""),
             "data-cas-toggle": "1",
+            "data-cas-tab-url": tab.url || "#",
             "aria-haspopup": "true",
             "aria-expanded": "false"
           }, el("span", null, tab.label), CHEV),
@@ -137,7 +138,7 @@
       var kids = tab.children || [];
       if (kids.length) {
         return el("div", { className: "cas-m-group", key: "mg" + i },
-          el("button", { type: "button", className: "cas-m-item cas-m-item--parent", "data-cas-m-toggle": "1", "aria-expanded": "false" },
+          el("button", { type: "button", className: "cas-m-item cas-m-item--parent", "data-cas-m-toggle": "1", "data-cas-tab-url": tab.url || "#", "aria-expanded": "false" },
             el("span", null, tab.label), CHEV),
           el("div", { className: "cas-m-sub" },
             kids.map(function (kid, k) {

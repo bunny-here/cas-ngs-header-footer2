@@ -397,6 +397,20 @@ function cas_ngs_header_render_callback( $attributes ) {
 		$active   = ! empty( $tab['active'] );
 		$children = is_array( $tab['children'] ) ? $tab['children'] : array();
 
+		$current_url = home_url( add_query_arg( array() ) );
+		$current_path = wp_parse_url( $current_url, PHP_URL_PATH );
+		$tab_path      = wp_parse_url( $url, PHP_URL_PATH );
+		if ( ! $tab_path ) {
+			$tab_path = '/';
+		}
+		if ( '/' !== $current_path && '/' !== $tab_path ) {
+			$current_path = rtrim( $current_path, '/' );
+			$tab_path     = rtrim( $tab_path, '/' );
+		}
+		if ( $current_path === $tab_path ) {
+			$active = true;
+		}
+
 		if ( $children ) {
 			$links = '';
 			$sub   = '';
@@ -421,7 +435,8 @@ function cas_ngs_header_render_callback( $attributes ) {
 			}
 			$desktop .= '<div class="cas-dock-group">'
 				. '<button type="button" class="' . $btn_class . '" '
-				. 'data-cas-toggle aria-haspopup="true" '
+				. 'data-cas-toggle data-cas-tab-url="' . esc_attr( $url ) . '" '
+				. 'aria-haspopup="true" '
 				. 'aria-expanded="false"><span>' . $label . '</span>'
 				. cas_ngs_svg_chevron() . '</button>'
 				. '<div class="cas-dropdown" data-cas-dropdown>'
@@ -430,6 +445,7 @@ function cas_ngs_header_render_callback( $attributes ) {
 			$mobile .= '<div class="cas-m-group">'
 				. '<button type="button" class="cas-m-item '
 				. 'cas-m-item--parent" data-cas-m-toggle '
+				. 'data-cas-tab-url="' . esc_attr( $url ) . '" '
 				. 'aria-expanded="false"><span>' . $label . '</span>'
 				. cas_ngs_svg_chevron() . '</button>'
 				. '<div class="cas-m-sub">' . $sub . '</div></div>';
