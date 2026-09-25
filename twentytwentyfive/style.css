@@ -1,0 +1,194 @@
+/*
+Theme Name: Twenty Twenty-Five
+Theme URI: https://wordpress.org/themes/twentytwentyfive/
+Author: the WordPress team
+Author URI: https://wordpress.org
+Description: Twenty Twenty-Five emphasizes simplicity and adaptability. It offers flexible design options, supported by a variety of patterns for different page types, such as services and landing pages, making it ideal for building personal blogs, professional portfolios, online magazines, or business websites. Its templates cater to various blog styles, from text-focused to image-heavy layouts. Additionally, it supports international typography and diverse color palettes, ensuring accessibility and customization for users worldwide.
+Requires at least: 6.7
+Tested up to: 7.1
+Requires PHP: 7.2
+Version: 1.5
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: twentytwentyfive
+Tags: one-column, custom-colors, custom-menu, custom-logo, editor-style, featured-images, full-site-editing, block-patterns, rtl-language-support, sticky-post, threaded-comments, translation-ready, wide-blocks, block-styles, style-variations, accessibility-ready, blog, portfolio, news
+*/
+
+/*
+ * IMPORTANT: This file is only served on the frontend when `SCRIPT_DEBUG` is enabled;
+ * in most instances, the `style.min.css` file will be served. It is not recommended that you
+ * use the Theme File Editor to modify this stylesheet. Instead, add the necessary style
+ * overrides via "Additional CSS" in the Site Editor.
+ */
+
+/*
+ * Link styles
+ * https://github.com/WordPress/gutenberg/issues/42319
+ */
+a {
+	text-decoration-thickness: 1px !important;
+	text-underline-offset: .1em;
+}
+
+/* Focus styles */
+:where(.wp-site-blocks *:focus) {
+	outline-width: 2px;
+	outline-style: solid;
+}
+
+/* Increase the bottom margin on submenus, so that the outline is visible. */
+.wp-block-navigation .wp-block-navigation-submenu .wp-block-navigation-item:not(:last-child) {
+	margin-bottom: 3px;
+}
+
+/* Increase the outline offset on the parent menu items, so that the outline does not touch the text. */
+.wp-block-navigation .wp-block-navigation-item .wp-block-navigation-item__content {
+	outline-offset: 4px;
+}
+
+/* Remove outline offset from the submenus, otherwise the outline is visible outside the submenu container. */
+.wp-block-navigation .wp-block-navigation-item ul.wp-block-navigation__submenu-container .wp-block-navigation-item__content {
+	outline-offset: 0;
+}
+
+/*
+ * Progressive enhancement to reduce widows and orphans
+ * https://github.com/WordPress/gutenberg/issues/55190
+ */
+h1, h2, h3, h4, h5, h6, blockquote, caption, figcaption, p {
+	text-wrap: pretty;
+}
+
+/*
+ * Change the position of the more block on the front, by making it a block level element.
+ * https://github.com/WordPress/gutenberg/issues/65934
+*/
+.more-link {
+	display: block;
+}
+
+/*
+ * Prevents unnecessary scrollbars while handling long lines of preformatted text.
+ * https://core.trac.wordpress.org/ticket/63875
+ */
+:where(pre) {
+	overflow-x: auto;
+}
+
+:root {
+	--cas-theme-base: #0F1314;
+	--cas-theme-contrast: #F5EFE7;
+	--cas-theme-accent: #F4A950;
+	--cas-theme-accent-soft: #D9B58D;
+	--cas-theme-accent-alt: #A0B7B9;
+	--cas-theme-surface: rgba(255, 255, 255, 0.04);
+	--cas-theme-surface-strong: rgba(255, 255, 255, 0.08);
+	--cas-theme-border: rgba(244, 169, 80, 0.18);
+	--cas-theme-shadow: rgba(7, 10, 12, 0.25);
+}
+
+body {
+	background-color: var(--cas-theme-base);
+	color: var(--cas-theme-contrast);
+}
+
+body,
+body .wp-block-post-content,
+body .wp-block-group,
+body .wp-block-columns,
+body .wp-block-column,
+body .wp-block-post-template article,
+body .wp-block-query-loop article,
+body .wp-block-cover,
+body .wp-block-media-text,
+body .wp-block-image,
+body .wp-block-buttons,
+body .wp-block-button {
+	color: var(--cas-theme-contrast);
+}
+
+a {
+	color: var(--cas-theme-accent);
+}
+
+.wp-block-button__link,
+.wp-block-search__button,
+.wp-element-button,
+button:not(.components-button) {
+	background: var(--cas-theme-accent);
+	color: var(--cas-theme-base);
+	border: 1px solid rgba(255, 255, 255, 0.05);
+	border-radius: 999px;
+	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
+	transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.wp-block-button__link:hover,
+.wp-block-search__button:hover,
+.wp-element-button:hover,
+button:not(.components-button):hover {
+	filter: brightness(1.04);
+	transform: translateY(-1px);
+}
+
+.wp-block-group,
+.wp-block-columns,
+.wp-block-column,
+.wp-block-post-template article,
+.wp-block-query-loop article,
+.wp-block-cover,
+.wp-block-media-text,
+.wp-block-image figcaption,
+.wp-block-table,
+.wp-block-quote,
+.wp-block-pullquote,
+.wp-block-separator {
+	background: var(--cas-theme-surface);
+	border: 1px solid var(--cas-theme-border);
+	border-radius: 22px;
+	box-shadow: 0 16px 34px var(--cas-theme-shadow);
+}
+
+.wp-block-group,
+.wp-block-columns,
+.wp-block-column,
+.wp-block-post-template article,
+.wp-block-query-loop article,
+.wp-block-cover,
+.wp-block-media-text,
+.wp-block-image,
+.wp-block-quote,
+.wp-block-pullquote {
+	padding: clamp(1.1rem, 2vw, 1.7rem);
+}
+
+.wp-block-heading,
+.wp-block-post-title,
+h1, h2, h3, h4, h5, h6 {
+	color: var(--cas-theme-contrast);
+}
+
+.wp-block-navigation-item__content,
+.wp-block-navigation-submenu-icon,
+.wp-block-site-title a {
+	color: var(--cas-theme-contrast);
+}
+
+.site-header,
+.wp-block-template-part-header,
+.wp-block-template-part {
+	background: rgba(15, 19, 20, 0.8);
+	border-bottom: 1px solid var(--cas-theme-border);
+	backdrop-filter: blur(12px);
+}
+
+.wp-block-post-featured-image img,
+.wp-block-image img,
+.wp-block-cover__background {
+	border-radius: 18px;
+}
+
+::selection {
+	background: rgba(244, 169, 80, 0.28);
+	color: var(--cas-theme-contrast);
+}
