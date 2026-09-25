@@ -12,6 +12,7 @@
   } catch (err) {}
 
   if (shouldSkip) {
+    document.body.classList.remove('cas-splash-active');
     document.body.classList.add('cas-splash-complete');
     document.documentElement.classList.remove('cas-splash-active');
     overlay.setAttribute('aria-hidden', 'true');
@@ -22,8 +23,8 @@
   document.documentElement.classList.add('cas-splash-active');
   document.body.classList.add('cas-splash-active');
 
-  const COLOR_PRIMARY = '#000000';
-  const COLOR_TEXT = '#000000';
+  const COLOR_PRIMARY = '#F4A950';
+  const COLOR_TEXT = '#F4A950';
 
   const logoTargets = [
     { topY: 100, botY: 412 },
@@ -51,6 +52,7 @@
       }
     } catch (err) {}
 
+    document.body.classList.remove('cas-splash-active');
     document.body.classList.add('cas-splash-complete');
     document.documentElement.classList.remove('cas-splash-active');
     setTimeout(function () {
