@@ -9,42 +9,42 @@
 			"defaultPalette": false,
 			"palette": [
 				{
-					"color": "#0F1314",
+					"color": "#EDE0D4",
 					"name": "Base",
 					"slug": "base"
 				},
 				{
-					"color": "#F5EFE7",
+					"color": "#362115",
 					"name": "Contrast",
 					"slug": "contrast"
 				},
 				{
-					"color": "#F4A950",
+					"color": "#865438",
 					"name": "Accent 1",
 					"slug": "accent-1"
 				},
 				{
-					"color": "#D9B58D",
+					"color": "#9E7B4F",
 					"name": "Accent 2",
 					"slug": "accent-2"
 				},
 				{
-					"color": "#A0B7B9",
+					"color": "#4ADE80",
 					"name": "Accent 3",
 					"slug": "accent-3"
 				},
 				{
-					"color": "#7A8187",
+					"color": "#E6CCB2",
 					"name": "Accent 4",
 					"slug": "accent-4"
 				},
 				{
-					"color": "#F3E4C8",
+					"color": "#F8F3EE",
 					"name": "Accent 5",
 					"slug": "accent-5"
 				},
 				{
-					"color": "rgba(244, 169, 80, 0.18)",
+					"color": "rgba(134, 84, 56, 0.18)",
 					"name": "Accent 6",
 					"slug": "accent-6"
 				}

@@ -76,15 +76,15 @@ h1, h2, h3, h4, h5, h6, blockquote, caption, figcaption, p {
 }
 
 :root {
-	--cas-theme-base: #0F1314;
-	--cas-theme-contrast: #F5EFE7;
-	--cas-theme-accent: #F4A950;
-	--cas-theme-accent-soft: #D9B58D;
-	--cas-theme-accent-alt: #A0B7B9;
-	--cas-theme-surface: rgba(255, 255, 255, 0.04);
-	--cas-theme-surface-strong: rgba(255, 255, 255, 0.08);
-	--cas-theme-border: rgba(244, 169, 80, 0.18);
-	--cas-theme-shadow: rgba(7, 10, 12, 0.25);
+	--cas-theme-base: #EDE0D4;
+	--cas-theme-contrast: #362115;
+	--cas-theme-accent: #865438;
+	--cas-theme-accent-soft: #9E7B4F;
+	--cas-theme-accent-alt: #4ADE80;
+	--cas-theme-surface: rgba(255, 255, 255, 0.45);
+	--cas-theme-surface-strong: rgba(255, 255, 255, 0.78);
+	--cas-theme-border: rgba(134, 84, 56, 0.22);
+	--cas-theme-shadow: rgba(54, 33, 21, 0.12);
 }
 
 body {
@@ -116,10 +116,10 @@ a {
 .wp-element-button,
 button:not(.components-button) {
 	background: var(--cas-theme-accent);
-	color: var(--cas-theme-base);
-	border: 1px solid rgba(255, 255, 255, 0.05);
+	color: #F8F3EE;
+	border: 1px solid rgba(134, 84, 56, 0.35);
 	border-radius: 999px;
-	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
+	box-shadow: 0 12px 24px rgba(54, 33, 21, 0.12);
 	transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 
@@ -146,7 +146,7 @@ button:not(.components-button):hover {
 	background: var(--cas-theme-surface);
 	border: 1px solid var(--cas-theme-border);
 	border-radius: 22px;
-	box-shadow: 0 16px 34px var(--cas-theme-shadow);
+	box-shadow: 0 14px 30px var(--cas-theme-shadow);
 }
 
 .wp-block-group,
@@ -177,7 +177,7 @@ h1, h2, h3, h4, h5, h6 {
 .site-header,
 .wp-block-template-part-header,
 .wp-block-template-part {
-	background: rgba(15, 19, 20, 0.8);
+	background: rgba(255, 255, 255, 0.52);
 	border-bottom: 1px solid var(--cas-theme-border);
 	backdrop-filter: blur(12px);
 }
@@ -189,6 +189,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::selection {
-	background: rgba(244, 169, 80, 0.28);
+	background: rgba(134, 84, 56, 0.18);
 	color: var(--cas-theme-contrast);
 }
