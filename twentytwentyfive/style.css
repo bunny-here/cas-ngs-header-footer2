@@ -96,7 +96,7 @@ h1, h2, h3, h4, h5, h6, blockquote, caption, figcaption, p {
 	--cas-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 	--cas-ease-spring: cubic-bezier(0.34, 1.35, 0.64, 1);
 
-	--cas-theme-base: var(--cas-t5);
+	--cas-theme-base: var(--cas-canvas-bg);
 	--cas-theme-contrast: var(--cas-ink);
 	--cas-theme-accent: var(--cas-t1);
 	--cas-theme-accent-soft: var(--cas-t2);
@@ -108,7 +108,7 @@ h1, h2, h3, h4, h5, h6, blockquote, caption, figcaption, p {
 }
 
 body {
-	background-color: var(--cas-t5);
+	background-color: var(--cas-canvas-bg);
 	color: var(--cas-ink);
 	font-family: var(--cas-font-body);
 }

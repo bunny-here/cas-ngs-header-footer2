@@ -9,8 +9,8 @@
 			"defaultPalette": false,
 			"palette": [
 				{
-					"color": "#EDE0D4",
-					"name": "Alabaster",
+					"color": "#F8F6F0",
+					"name": "Canvas Background",
 					"slug": "base"
 				},
 				{
@@ -39,8 +39,8 @@
 					"slug": "accent-4"
 				},
 				{
-					"color": "#F8F6F0",
-					"name": "Canvas Background",
+					"color": "#EDE0D4",
+					"name": "Alabaster",
 					"slug": "accent-5"
 				},
 				{
