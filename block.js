@@ -103,7 +103,12 @@
   /* ── the exact dock markup the engine animates ───────────────────────── */
 
   function headerMarkup(att) {
-    var tabs = att.tabs || [];
+    var tabs = (att.tabs || []).filter(function (tab) {
+      return !tab || String(tab.label || "").trim().toLowerCase() !== "account";
+    });
+    if (window.casNgHeaderAccountMenu) {
+      tabs = tabs.concat([window.casNgHeaderAccountMenu]);
+    }
 
     var dockItems = tabs.map(function (tab, i) {
       var kids = tab.children || [];

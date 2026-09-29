@@ -3,7 +3,7 @@
  * Plugin Name: CAS-NGS Core Suite
  * Plugin URI:  https://example.com/cas-ngs
  * Description: Header, footer and biotech blocks in one plugin.
- * Version:     2.2.0
+ * Version:     2.3.0
  * Requires at least: 6.1
  * Requires PHP: 7.2
  * Author:      CAS-NGS
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'CAS_NGS_SUITE_VERSION' ) ) {
-	define( 'CAS_NGS_SUITE_VERSION', '2.2.0' );
+	define( 'CAS_NGS_SUITE_VERSION', '2.3.0' );
 }
 
 if ( ! defined( 'CAS_NGS_HF_VERSION' ) ) {
@@ -457,10 +457,55 @@ function cas_ngs_svg_arrow() {
 }
 
 // Build the header markup from block attributes.
+function cas_ngs_header_account_menu_data() {
+	$login_url    = home_url( '/login/' );
+	$register_url = home_url( '/register/' );
+	$account_url  = home_url( '/account/' );
+
+	if ( is_user_logged_in() ) {
+		$current_user = wp_get_current_user();
+		$profile_url  = home_url( '/user/' . rawurlencode( $current_user->user_login ) . '/' );
+
+		return array(
+			'label'    => __( 'Account', 'cas-ngs' ),
+			'url'      => $account_url,
+			'active'   => false,
+			'children' => array(
+				array( 'label' => __( 'My Profile', 'cas-ngs' ), 'url' => $profile_url, 'caption' => '' ),
+				array( 'label' => __( 'Account', 'cas-ngs' ), 'url' => $account_url, 'caption' => '' ),
+				array( 'label' => __( 'Author Dashboard', 'cas-ngs' ), 'url' => home_url( '/author-dashboard/' ), 'caption' => '' ),
+				array( 'label' => __( 'Logout', 'cas-ngs' ), 'url' => home_url( '/logout/' ), 'caption' => '' ),
+			),
+		);
+	}
+
+	return array(
+		'label'    => __( 'Account', 'cas-ngs' ),
+		'url'      => $login_url,
+		'active'   => false,
+		'children' => array(
+			array( 'label' => __( 'Login', 'cas-ngs' ), 'url' => $login_url, 'caption' => '' ),
+			array( 'label' => __( 'Register', 'cas-ngs' ), 'url' => $register_url, 'caption' => '' ),
+		),
+	);
+}
+
 function cas_ngs_header_render_callback( $attributes ) {
 	$defaults = cas_ngs_header_default_attributes();
 	$atts     = wp_parse_args( (array) $attributes, $defaults );
 	$tabs     = is_array( $atts['tabs'] ) ? $atts['tabs'] : array();
+	$tabs     = array_values(
+		array_filter(
+			$tabs,
+			function ( $tab ) {
+				if ( ! is_array( $tab ) || ! isset( $tab['label'] ) ) {
+					return true;
+				}
+				return 'account' !== strtolower( trim( wp_strip_all_tags( (string) $tab['label'] ) ) );
+			}
+		)
+	);
+	$tabs[]   = cas_ngs_header_account_menu_data();
 
 	$desktop = '';
 	$mobile  = '';
@@ -780,6 +825,7 @@ function cas_ngs_suite_editor_assets() {
 		CAS_NGS_SUITE_VERSION,
 		true
 	);
+	wp_localize_script( 'cas-ngs-block', 'casNgHeaderAccountMenu', cas_ngs_header_account_menu_data() );
 	wp_enqueue_style(
 		'cas-ngs-hf-front',
 		$base . 'assets/header-footer.css',
