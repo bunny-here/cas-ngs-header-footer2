@@ -1,0 +1,28 @@
+{
+	"name": "cas-earth-theme",
+	"version": "1.0.0",
+	"description": "CAS Earth Theme build tools",
+	"author": "CAS-NGS",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"WordPress",
+		"Theme"
+	],
+	"engines": {
+		"node": ">=20.10.0",
+		"npm": ">=10.2.3"
+	},
+	"devDependencies": {
+		"@wordpress/browserslist-config": "^6.34.0",
+		"postcss": "^8.5.6",
+		"postcss-cli": "^11.0.1",
+		"cssnano": "^7.1.2"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+  "scripts": {
+    "build": "postcss style.css --use cssnano -o style.min.css --no-map",
+    "watch": "postcss style.css --use cssnano -o style.min.css --no-map --watch"
+  }
+}
