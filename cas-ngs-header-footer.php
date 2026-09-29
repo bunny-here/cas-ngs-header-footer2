@@ -504,6 +504,7 @@ function cas_ngs_header_render_callback( $attributes ) {
 		if ( $children ) {
 			$links = '';
 			$sub   = '';
+			$toggle_label = esc_attr( sprintf( __( 'Toggle %s submenu', 'cas-ngs' ), wp_strip_all_tags( $tab['label'] ) ) );
 			foreach ( $children as $child ) {
 				$child = wp_parse_args(
 					(array) $child,
@@ -524,20 +525,24 @@ function cas_ngs_header_render_callback( $attributes ) {
 				$btn_class .= ' is-active';
 			}
 			$desktop .= '<div class="cas-dock-group">'
-				. '<button type="button" class="' . $btn_class . '" '
-				. 'data-cas-toggle data-cas-tab-url="' . esc_attr( $url ) . '" '
-				. 'aria-haspopup="true" '
-				. 'aria-expanded="false"><span>' . $label . '</span>'
-				. cas_ngs_svg_chevron() . '</button>'
+				. '<div class="' . $btn_class . '">'
+				. '<a class="cas-dock-parent__link" href="' . $url . '"' . ( $active ? ' aria-current="page"' : '' ) . '>'
+				. '<span>' . $label . '</span></a>'
+				. '<button type="button" class="cas-dock-toggle" '
+				. 'data-cas-toggle aria-label="' . $toggle_label . '" '
+				. 'aria-haspopup="true" aria-expanded="false">'
+				. cas_ngs_svg_chevron() . '</button></div>'
 				. '<div class="cas-dropdown" data-cas-dropdown>'
 				. $links . '</div></div>';
 
 			$mobile .= '<div class="cas-m-group">'
-				. '<button type="button" class="cas-m-item '
-				. 'cas-m-item--parent" data-cas-m-toggle '
-				. 'data-cas-tab-url="' . esc_attr( $url ) . '" '
-				. 'aria-expanded="false"><span>' . $label . '</span>'
-				. cas_ngs_svg_chevron() . '</button>'
+				. '<div class="cas-m-parent">'
+				. '<a class="cas-m-item cas-m-item--parent" href="' . $url . '"' . ( $active ? ' aria-current="page"' : '' ) . '>'
+				. '<span>' . $label . '</span></a>'
+				. '<button type="button" class="cas-m-toggle" '
+				. 'data-cas-m-toggle aria-label="' . $toggle_label . '" '
+				. 'aria-haspopup="true" aria-expanded="false">'
+				. cas_ngs_svg_chevron() . '</button></div>'
 				. '<div class="cas-m-sub">' . $sub . '</div></div>';
 		} else {
 			$a_class = 'cas-dock-item';

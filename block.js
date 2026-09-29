@@ -108,15 +108,23 @@
     var dockItems = tabs.map(function (tab, i) {
       var kids = tab.children || [];
       if (kids.length) {
+        var parentClass = "cas-dock-item cas-dock-item--parent" + (tab.active ? " is-active" : "");
         return el("div", { className: "cas-dock-group", key: "g" + i },
-          el("button", {
-            type: "button",
-            className: "cas-dock-item cas-dock-item--parent" + (tab.active ? " is-active" : ""),
-            "data-cas-toggle": "1",
-            "data-cas-tab-url": tab.url || "#",
-            "aria-haspopup": "true",
-            "aria-expanded": "false"
-          }, el("span", null, tab.label), CHEV),
+          el("div", { className: parentClass },
+            el("a", {
+              className: "cas-dock-parent__link",
+              href: tab.url || "#",
+              "aria-current": tab.active ? "page" : undefined
+            }, el("span", null, tab.label)),
+            el("button", {
+              type: "button",
+              className: "cas-dock-toggle",
+              "data-cas-toggle": "1",
+              "aria-label": __("Toggle submenu for", "cas-ngs") + " " + tab.label,
+              "aria-haspopup": "true",
+              "aria-expanded": "false"
+            }, CHEV)
+          ),
           el("div", { className: "cas-dropdown", "data-cas-dropdown": "1" },
             kids.map(function (kid, k) {
               return el("a", { className: "cas-dropdown__link", href: kid.url || "#", key: "l" + k },
@@ -138,8 +146,20 @@
       var kids = tab.children || [];
       if (kids.length) {
         return el("div", { className: "cas-m-group", key: "mg" + i },
-          el("button", { type: "button", className: "cas-m-item cas-m-item--parent", "data-cas-m-toggle": "1", "data-cas-tab-url": tab.url || "#", "aria-expanded": "false" },
-            el("span", null, tab.label), CHEV),
+          el("div", { className: "cas-m-parent" },
+            el("a", {
+              className: "cas-m-item cas-m-item--parent",
+              href: tab.url || "#",
+              "aria-current": tab.active ? "page" : undefined
+            }, el("span", null, tab.label)),
+            el("button", {
+              type: "button",
+              className: "cas-m-toggle",
+              "data-cas-m-toggle": "1",
+              "aria-label": __("Toggle submenu for", "cas-ngs") + " " + tab.label,
+              "aria-expanded": "false"
+            }, CHEV)
+          ),
           el("div", { className: "cas-m-sub" },
             kids.map(function (kid, k) {
               return el("a", { className: "cas-m-sublink", href: kid.url || "#", key: "ml" + k }, kid.label);
@@ -206,7 +226,7 @@
           el("p", { style: { marginBottom: "6px", fontWeight: "600" } }, __("Site icon", "cas-ngs")),
           el("div", { style: { display: "flex", alignItems: "center", gap: "10px" } },
             att.logoUrl
-              ? el("img", { src: att.logoUrl, alt: "", style: { width: "36px", height: "36px", objectFit: "cover", borderRadius: "10px" } })
+              ? el("img", { src: att.logoUrl, alt: "", style: { display: "block", boxSizing: "border-box", width: "36px", height: "36px", objectFit: "contain", padding: "3px", borderRadius: "10px", background: "#6e543e" } })
               : el("span", { style: { width: "36px", height: "36px", display: "grid", placeItems: "center", borderRadius: "10px", background: "#865438", color: "#ede0d4" } }, LEAF),
             el(MediaUpload, {
               onSelect: function (media) { set({ logoUrl: (media && media.url) || "" }); },

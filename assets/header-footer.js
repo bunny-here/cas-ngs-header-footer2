@@ -394,12 +394,15 @@
 
   function syncCurrentPageState(header) {
     var currentPath = normalizePath(window.location.href);
-    var items = Array.prototype.slice.call(header.querySelectorAll(".cas-dock-item, .cas-m-item"));
+    var items = Array.prototype.slice.call(header.querySelectorAll(".cas-dock-item[href], .cas-dock-parent__link, .cas-m-item[href]"));
     var matched = null;
 
     items.forEach(function (link) {
       link.classList.remove("is-active");
       link.removeAttribute("aria-current");
+    });
+    Array.prototype.forEach.call(header.querySelectorAll(".cas-dock-item--parent"), function (item) {
+      item.classList.remove("is-active");
     });
 
     if (!currentPath) return;
@@ -419,6 +422,8 @@
     if (matched) {
       matched.classList.add("is-active");
       matched.setAttribute("aria-current", "page");
+      var parentItem = matched.closest(".cas-dock-item--parent");
+      if (parentItem) parentItem.classList.add("is-active");
     }
   }
 
