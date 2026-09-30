@@ -61,6 +61,31 @@ html.cor3d-active { overflow-x: clip; }
   transform: translate3d(0, 100%, 0);
 }
 
+#corridor-canvas-container.cor3d-started .cor3d-stage {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+}
+
+#corridor-canvas-container .cor3d-static-fallback {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  min-height: 100vh;
+  padding: clamp(24px, 8vw, 100px);
+}
+
+#corridor-canvas-container.cor3d-started .cor3d-static-fallback {
+  display: none;
+}
+
+#corridor-canvas-container.cor3d-started:not(.cor3d-enhanced) .cor3d-hud .cor3d-anchor:first-child {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%);
+}
+
 #corridor-canvas-container .cor3d-stage canvas.gl {
   position: absolute;
   inset: 0;

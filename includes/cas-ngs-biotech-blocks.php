@@ -37,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'CAS_BIO_BLOCKS_VERSION' ) ) {
-  define( 'CAS_BIO_BLOCKS_VERSION', '1.8.0' );
+  define( 'CAS_BIO_BLOCKS_VERSION', '1.10.0' );
 }
 if ( ! defined( 'CAS_BIO_BLOCKS_PATH' ) ) {
   define( 'CAS_BIO_BLOCKS_PATH', dirname( __DIR__ ) . '/' );
@@ -238,13 +238,12 @@ add_action( 'init', 'cas_bio_register_corridor_hero_fallback', 11 );
  * blocks/3d-corridor-hero/render.php, which it delegates to).
  */
 function cas_bio_render_corridor_hero( $attributes = array() ) {
-  wp_enqueue_style( 'cas-ngs-corridor-hero-css' );
-  wp_enqueue_script( 'cas-ngs-corridor-hero-engine' );
+  cas_bio_enqueue_runtime_for_block( 'cas-ngs/3d-corridor-hero' );
   return cas_bio_render_block_template( '3d-corridor-hero', is_array( $attributes ) ? $attributes : array() );
 }
 
 /**
- * Register + enqueue unified CSS/JS bundles + external Three.js & GSAP deps.
+ * Register shared handles; block rendering enqueues only the needed runtime.
  */
 function cas_bio_enqueue_frontend_assets() {
   // 1. Unified Stylesheet (checks dist/style.css, falls back to assets/css)
@@ -258,7 +257,6 @@ function cas_bio_enqueue_frontend_assets() {
     array(),
     CAS_BIO_BLOCKS_VERSION
   );
-  wp_enqueue_style( 'cas-ngs-biotech-blocks-css' );
 
   // CDN base URLs split so no line is long enough to corrupt in transfer.
   $gsap_cdn  = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/';
@@ -269,36 +267,30 @@ function cas_bio_enqueue_frontend_assets() {
   if ( ! wp_script_is( 'gsap', 'registered' ) ) {
     wp_register_script( 'gsap', $gsap_cdn . 'gsap.min.js', array(), '3.12.5', true );
   }
-  wp_enqueue_script( 'gsap' );
 
   // 3. GSAP ScrollTrigger 3.12.5
   if ( ! wp_script_is( 'gsap-scroll-trigger', 'registered' ) ) {
     wp_register_script( 'gsap-scroll-trigger', $gsap_cdn . 'ScrollTrigger.min.js', array( 'gsap' ), '3.12.5', true );
   }
-  wp_enqueue_script( 'gsap-scroll-trigger' );
 
   // 4. GSAP Observer 3.12.5 (single-flick 4-frame pipeline locking)
   if ( ! wp_script_is( 'gsap-observer', 'registered' ) ) {
     wp_register_script( 'gsap-observer', $gsap_cdn . 'Observer.min.js', array( 'gsap' ), '3.12.5', true );
   }
-  wp_enqueue_script( 'gsap-observer' );
 
   // 5. Three.js r128
   if ( ! wp_script_is( 'three', 'registered' ) ) {
     wp_register_script( 'three', $three_cdn . 'three.min.js', array(), 'r128', true );
   }
-  wp_enqueue_script( 'three' );
 
   // 6. Three.js Postprocessing Shaders & EffectComposer
   if ( ! wp_script_is( 'three-copy-shader', 'registered' ) ) {
     wp_register_script( 'three-copy-shader', $three_ex . 'shaders/CopyShader.js', array( 'three' ), 'r128', true );
   }
-  wp_enqueue_script( 'three-copy-shader' );
 
   if ( ! wp_script_is( 'three-shader-pass', 'registered' ) ) {
     wp_register_script( 'three-shader-pass', $three_ex . 'postprocessing/ShaderPass.js', array( 'three' ), 'r128', true );
   }
-  wp_enqueue_script( 'three-shader-pass' );
 
   if ( ! wp_script_is( 'three-effect-composer', 'registered' ) ) {
     wp_register_script(
@@ -309,7 +301,6 @@ function cas_bio_enqueue_frontend_assets() {
       true
     );
   }
-  wp_enqueue_script( 'three-effect-composer' );
 
   if ( ! wp_script_is( 'three-render-pass', 'registered' ) ) {
     wp_register_script(
@@ -320,13 +311,11 @@ function cas_bio_enqueue_frontend_assets() {
       true
     );
   }
-  wp_enqueue_script( 'three-render-pass' );
 
   // 7. Three.js GLTFLoader
   if ( ! wp_script_is( 'three-gltf-loader', 'registered' ) ) {
     wp_register_script( 'three-gltf-loader', $three_ex . 'loaders/GLTFLoader.js', array( 'three' ), 'r128', true );
   }
-  wp_enqueue_script( 'three-gltf-loader' );
 
   // 8. Unified Production Client Bundle
   $js_file = file_exists( CAS_BIO_BLOCKS_PATH . 'dist/index.js' )
@@ -336,17 +325,7 @@ function cas_bio_enqueue_frontend_assets() {
   wp_register_script(
     'cas-ngs-biotech-blocks-engine',
     CAS_BIO_BLOCKS_URL . $js_file,
-    array(
-      'gsap',
-      'gsap-scroll-trigger',
-      'gsap-observer',
-      'three',
-      'three-copy-shader',
-      'three-shader-pass',
-      'three-effect-composer',
-      'three-render-pass',
-      'three-gltf-loader',
-    ),
+    array(),
     CAS_BIO_BLOCKS_VERSION,
     true
   );
@@ -360,8 +339,6 @@ function cas_bio_enqueue_frontend_assets() {
     )
   );
 
-  wp_enqueue_script( 'cas-ngs-biotech-blocks-engine' );
-
   // 8b. DNA Background Enhancer — replaces initDnaBackground to (a) fix the
   // off-center/squished DNA when the block is inserted inline (relocates the
   // wrapper to <body>) and (b) keep the helix pose cycling across every
@@ -373,8 +350,6 @@ function cas_bio_enqueue_frontend_assets() {
     CAS_BIO_BLOCKS_VERSION,
     true
   );
-  wp_enqueue_script( 'cas-ngs-dna-bg-enhance' );
-
   // 9. 3D Corridor Hero (additive module — scoped cor3d-* namespace,
   //    depends on the unified bundle; existing blocks are untouched).
   wp_register_style(
@@ -383,18 +358,96 @@ function cas_bio_enqueue_frontend_assets() {
     array( 'cas-ngs-biotech-blocks-css' ),
     CAS_BIO_BLOCKS_VERSION
   );
-  wp_enqueue_style( 'cas-ngs-corridor-hero-css' );
-
   wp_register_script(
     'cas-ngs-corridor-hero-engine',
     CAS_BIO_BLOCKS_URL . 'assets/js/corridor-hero-engine.js',
-    array( 'cas-ngs-biotech-blocks-engine' ),
+    array( 'gsap-observer', 'three-gltf-loader', 'three-render-pass' ),
     CAS_BIO_BLOCKS_VERSION,
     true
   );
-  wp_enqueue_script( 'cas-ngs-corridor-hero-engine' );
 }
 add_action( 'wp_enqueue_scripts', 'cas_bio_enqueue_frontend_assets' );
+
+function cas_bio_enqueue_three_stack( $with_postprocessing = false ) {
+  wp_enqueue_script( 'three' );
+  if ( $with_postprocessing ) {
+    wp_enqueue_script( 'three-copy-shader' );
+    wp_enqueue_script( 'three-shader-pass' );
+    wp_enqueue_script( 'three-effect-composer' );
+    wp_enqueue_script( 'three-render-pass' );
+  }
+  wp_enqueue_script( 'three-gltf-loader' );
+}
+
+function cas_bio_enqueue_runtime_for_block( $block_name ) {
+  $managed_blocks = array(
+    'cas-ngs/header-top-dock',
+    'cas-ngs/act1-hero-sequencer',
+    'cas-ngs/act2-bento-grid',
+    'cas-ngs/act3-process-timeline',
+    'cas-ngs/act4-cta-banner',
+    'cas-ngs/interactive-pipeline-hero',
+    'cas-ngs/dna-background',
+    'cas-ngs/3d-corridor-hero',
+  );
+  if ( ! in_array( $block_name, $managed_blocks, true ) ) {
+    return;
+  }
+  wp_enqueue_style( 'cas-ngs-biotech-blocks-css' );
+
+  $act_blocks = array(
+    'cas-ngs/act1-hero-sequencer',
+    'cas-ngs/act2-bento-grid',
+    'cas-ngs/act3-process-timeline',
+    'cas-ngs/act4-cta-banner',
+  );
+
+  if ( in_array( $block_name, $act_blocks, true ) ) {
+    wp_enqueue_script( 'gsap' );
+    wp_enqueue_script( 'gsap-scroll-trigger' );
+    wp_enqueue_script( 'cas-ngs-biotech-blocks-engine' );
+    return;
+  }
+
+  if ( 'cas-ngs/header-top-dock' === $block_name ) {
+    wp_enqueue_script( 'cas-ngs-biotech-blocks-engine' );
+    return;
+  }
+
+  if ( 'cas-ngs/interactive-pipeline-hero' === $block_name ) {
+    wp_enqueue_script( 'gsap' );
+    wp_enqueue_script( 'gsap-scroll-trigger' );
+    wp_enqueue_script( 'gsap-observer' );
+    cas_bio_enqueue_three_stack( true );
+    wp_enqueue_script( 'cas-ngs-biotech-blocks-engine' );
+    return;
+  }
+
+  if ( 'cas-ngs/dna-background' === $block_name ) {
+    wp_enqueue_script( 'gsap' );
+    wp_enqueue_script( 'gsap-scroll-trigger' );
+    cas_bio_enqueue_three_stack();
+    wp_enqueue_script( 'cas-ngs-biotech-blocks-engine' );
+    wp_enqueue_script( 'cas-ngs-dna-bg-enhance' );
+    return;
+  }
+
+  if ( 'cas-ngs/3d-corridor-hero' === $block_name ) {
+    wp_enqueue_script( 'gsap' );
+    wp_enqueue_script( 'gsap-observer' );
+    cas_bio_enqueue_three_stack( true );
+    wp_enqueue_style( 'cas-ngs-corridor-hero-css' );
+    wp_enqueue_script( 'cas-ngs-corridor-hero-engine' );
+  }
+}
+
+function cas_bio_enqueue_rendered_block_assets( $block_content, $block ) {
+  if ( ! empty( $block['blockName'] ) ) {
+    cas_bio_enqueue_runtime_for_block( $block['blockName'] );
+  }
+  return $block_content;
+}
+add_filter( 'render_block', 'cas_bio_enqueue_rendered_block_assets', 10, 2 );
 
 /**
  * Enqueue styles and Three.js inside the block editor.
@@ -437,19 +490,9 @@ function cas_bio_render_block_template( $block_slug, $attributes = array() ) {
     return '';
   }
 
-  // Ensure assets are queued when invoked via shortcode/template injection.
+  // Ensure only this block's runtime is queued for shortcode/template use.
   wp_enqueue_style( 'cas-ngs-biotech-blocks-css' );
-  wp_enqueue_script( 'gsap' );
-  wp_enqueue_script( 'gsap-scroll-trigger' );
-  wp_enqueue_script( 'gsap-observer' );
-  wp_enqueue_script( 'three' );
-  wp_enqueue_script( 'three-copy-shader' );
-  wp_enqueue_script( 'three-shader-pass' );
-  wp_enqueue_script( 'three-effect-composer' );
-  wp_enqueue_script( 'three-render-pass' );
-  wp_enqueue_script( 'three-gltf-loader' );
-  wp_enqueue_script( 'cas-ngs-biotech-blocks-engine' );
-  wp_enqueue_script( 'cas-ngs-dna-bg-enhance' );
+  cas_bio_enqueue_runtime_for_block( 'cas-ngs/' . sanitize_file_name( $block_slug ) );
 
   ob_start();
   include $file;

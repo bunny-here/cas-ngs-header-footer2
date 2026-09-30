@@ -7,8 +7,7 @@
  *   · dropdown submenus — hover-intent + click + keyboard + outside-close,
  *     with staggered link reveals
  *   · mobile drawer with accordion submenus (<768px)
- *   · ambient WebGL mote field inside the pill bar (Three.js r128 from cdnjs,
- *     loaded on demand; silently skipped if unavailable)
+ *   · static CSS sheen inside the pill bar (no WebGL dependency)
  *   · scroll state: the bar tightens after 8px of scroll
  *
  * Footer (.cas-footer):
@@ -22,8 +21,6 @@
   "use strict";
 
   var VERSION = "1.0.0";
-  var THREE_URL = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
-
   var C = {
     t1: "#865438",
     t2: "#af7853",
@@ -43,15 +40,6 @@
 
   function reducedMotion() {
     return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  }
-
-  function ensureThree(cb) {
-    if (window.THREE) return cb();
-    var s = document.createElement("script");
-    s.src = window.CAS_THREE_URL || THREE_URL;
-    s.async = true;
-    s.onload = function () { if (window.THREE) cb(); };
-    document.head.appendChild(s);
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
@@ -248,121 +236,6 @@
     }
   }
 
-  /* ── ambient WebGL mote field inside the pill bar ────────────────────── */
-  function initAmbient(canvas) {
-    if (!canvas || canvas.dataset.casAmbient) return;
-    canvas.dataset.casAmbient = "1";
-    if (reducedMotion()) return;
-
-    ensureThree(function () {
-      try {
-        var THREE = window.THREE;
-        var ratio = Math.min(window.devicePixelRatio || 1, 2);
-        var w = canvas.clientWidth || 1;
-        var h = canvas.clientHeight || 1;
-        canvas.width = Math.round(w * ratio);
-        canvas.height = Math.round(h * ratio);
-
-        var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-        renderer.setPixelRatio(ratio);
-        renderer.setSize(w, h, false);
-
-        var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 30);
-        camera.position.z = 6;
-
-        var COUNT = 90;
-        var positions = new Float32Array(COUNT * 3);
-        var speeds = new Float32Array(COUNT);
-        var phases = new Float32Array(COUNT);
-        for (var i = 0; i < COUNT; i++) {
-          positions[i * 3] = (Math.random() - 0.5) * 14;
-          positions[i * 3 + 1] = (Math.random() - 0.5) * 3.2;
-          positions[i * 3 + 2] = (Math.random() - 0.5) * 3;
-          speeds[i] = 0.08 + Math.random() * 0.22;
-          phases[i] = Math.random() * Math.PI * 2;
-        }
-        var geo = new THREE.BufferGeometry();
-        geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-
-        /* soft copper mote texture */
-        var dot = document.createElement("canvas");
-        dot.width = dot.height = 64;
-        var dctx = dot.getContext("2d");
-        var g = dctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-        g.addColorStop(0, "rgba(175,120,83,0.95)");
-        g.addColorStop(0.4, "rgba(212,153,110,0.4)");
-        g.addColorStop(1, "rgba(212,153,110,0)");
-        dctx.fillStyle = g;
-        dctx.fillRect(0, 0, 64, 64);
-        var tex = new THREE.CanvasTexture(dot);
-
-        var mat = new THREE.PointsMaterial({
-          size: 0.07,
-          map: tex,
-          color: 0xaf7853,
-          transparent: true,
-          opacity: 0.5,
-          depthWrite: false,
-          blending: THREE.NormalBlending,
-          sizeAttenuation: true
-        });
-        var points = new THREE.Points(geo, mat);
-        scene.add(points);
-
-        var raf = 0;
-        var running = false;
-        var t0 = performance.now();
-
-        function frame() {
-          var t = (performance.now() - t0) / 1000;
-          var attr = geo.getAttribute("position");
-          for (var j = 0; j < COUNT; j++) {
-            var y = attr.getY(j) + speeds[j] * 0.016;
-            if (y > 1.8) y = -1.8;
-            attr.setY(j, y);
-            attr.setX(j, attr.getX(j) + Math.sin(t * 0.6 + phases[j]) * 0.0016);
-          }
-          attr.needsUpdate = true;
-          points.rotation.z = Math.sin(t * 0.12) * 0.04;
-          renderer.render(scene, camera);
-          raf = requestAnimationFrame(frame);
-        }
-
-        function start() {
-          if (!running) { running = true; raf = requestAnimationFrame(frame); }
-        }
-        function stop() {
-          running = false;
-          cancelAnimationFrame(raf);
-        }
-
-        if ("IntersectionObserver" in window) {
-          new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-              if (entry.isIntersecting) start();
-              else stop();
-            });
-          }).observe(canvas);
-        } else {
-          start();
-        }
-
-        if ("ResizeObserver" in window) {
-          new ResizeObserver(function () {
-            var nw = canvas.clientWidth || 1;
-            var nh = canvas.clientHeight || 1;
-            renderer.setSize(nw, nh, false);
-            camera.aspect = nw / nh;
-            camera.updateProjectionMatrix();
-          }).observe(canvas);
-        }
-      } catch (err) {
-        console.error("[CAS Header] ambient canvas failed:", err);
-      }
-    });
-  }
-
   /* ── scroll state ────────────────────────────────────────────────────── */
   function initScroll(header) {
     var ticking = false;
@@ -435,7 +308,6 @@
       if (dock) initDock(dock);
       initDropdowns(header);
       initMobile(header);
-      initAmbient(header.querySelector(".cas-dock-canvas"));
       initScroll(header);
       syncCurrentPageState(header);
     } catch (err) {

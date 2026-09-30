@@ -171,6 +171,7 @@
     }
   },
   "supports": {
+    "inserter": false,
     "align": [
       "full"
     ],

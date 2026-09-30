@@ -66,6 +66,7 @@
       var accentColor = wrapper.getAttribute('data-accent-color') || '#4ade80';
       var ambientIntensity = parseFloat(wrapper.getAttribute('data-ambient-intensity') || '1.8');
       var enableCycling = wrapper.getAttribute('data-cycling') !== 'false';
+      var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       var width = window.innerWidth;
       var height = window.innerHeight;
@@ -79,7 +80,7 @@
         renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
       } catch (e) { return; }
       renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
       if (THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
 
       var ambientLight = new THREE.AmbientLight(0xfff8f0, ambientIntensity);
@@ -274,6 +275,7 @@
           });
           dnaMeshGroup.add(dnaScene);
           wireCycling();
+          if (prefersReducedMotion) renderer.render(scene, camera);
         }, undefined, function (err) {
           if (window.console && console.warn) console.warn('CAS-NGS DNA background: model load error', err);
         });
@@ -290,12 +292,32 @@
         }, 100);
       }
 
-      function renderLoop() {
-        requestAnimationFrame(renderLoop);
-        dnaMeshGroup.rotation.y += 0.0012;
+      var renderFrameId = 0;
+      function renderFrame() {
+        renderFrameId = 0;
+        if (document.hidden) return;
+        if (!document.hidden && !prefersReducedMotion) dnaMeshGroup.rotation.y += 0.0012;
         renderer.render(scene, camera);
+        if (!document.hidden && !prefersReducedMotion) {
+          renderFrameId = requestAnimationFrame(renderFrame);
+        }
       }
-      renderLoop();
+
+      function startRenderLoop() {
+        if (!document.hidden && !renderFrameId) renderFrameId = requestAnimationFrame(renderFrame);
+      }
+
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+          if (renderFrameId) cancelAnimationFrame(renderFrameId);
+          renderFrameId = 0;
+        } else {
+          startRenderLoop();
+        }
+      });
+
+      renderer.render(scene, camera);
+      startRenderLoop();
 
       window.addEventListener('resize', function () {
         var newW = window.innerWidth;
@@ -303,7 +325,8 @@
         camera.aspect = newW / newH;
         camera.updateProjectionMatrix();
         renderer.setSize(newW, newH);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+        if (prefersReducedMotion) renderer.render(scene, camera);
       }, { passive: true });
     });
   }

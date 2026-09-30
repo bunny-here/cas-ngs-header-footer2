@@ -50,6 +50,7 @@
     }
   },
   "supports": {
+    "inserter": false,
     "align": [
       "wide",
       "full"

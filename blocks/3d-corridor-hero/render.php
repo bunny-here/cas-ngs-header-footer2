@@ -177,6 +177,21 @@ $cor3d_tickers        = array(
   data-ticker-4="<?php echo esc_attr( $cor3d_tickers[3] ); ?>"
   style="<?php echo esc_attr( $cor3d_style ); ?>"
 >
+  <section class="cor3d-static-fallback" aria-labelledby="<?php echo esc_attr( $uid ); ?>-fallback-title">
+    <article class="cor3d-card">
+      <div class="cor3d-card-inner">
+        <header class="cor3d-fig">
+          <strong><?php echo esc_html( $cor3d_stations[0]['kicker'] ); ?></strong>
+          <span class="cor3d-fig-rule" aria-hidden="true"></span>
+          <span class="cor3d-fig-phase"><?php esc_html_e( 'Sample', 'cas-ngs-biotech-blocks' ); ?></span>
+        </header>
+        <h2 class="cor3d-title" id="<?php echo esc_attr( $uid ); ?>-fallback-title"><?php echo esc_html( $cor3d_stations[0]['title'] ); ?></h2>
+        <p class="cor3d-copy"><?php echo esc_html( $cor3d_stations[0]['desc'] ); ?></p>
+        <p class="cor3d-badge"><?php echo esc_html( $cor3d_stations[0]['badge'] ); ?></p>
+      </div>
+    </article>
+  </section>
+
   <div class="cor3d-stage" aria-label="<?php esc_attr_e( 'From Sample to Code: interactive 3D sequencing pipeline', 'cas-ngs-biotech-blocks' ); ?>">
     <canvas class="cor3d-glyph-fx" aria-hidden="true"></canvas>
 

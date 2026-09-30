@@ -3,7 +3,7 @@
  * Plugin Name: CAS-NGS Core Suite
  * Plugin URI:  https://example.com/cas-ngs
  * Description: Header, footer and biotech blocks in one plugin.
- * Version:     2.3.0
+ * Version:     2.5.0
  * Requires at least: 6.1
  * Requires PHP: 7.2
  * Author:      CAS-NGS
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'CAS_NGS_SUITE_VERSION' ) ) {
-	define( 'CAS_NGS_SUITE_VERSION', '2.3.0' );
+	define( 'CAS_NGS_SUITE_VERSION', '2.5.0' );
 }
 
 if ( ! defined( 'CAS_NGS_HF_VERSION' ) ) {
@@ -54,18 +54,11 @@ function cas_ngs_splash_enqueue_assets() {
 		'all'
 	);
 
-	wp_enqueue_script(
-		'cas-ngs-gsap',
-		'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js',
-		array(),
-		'3.12.2',
-		true
-	);
 
 	wp_enqueue_script(
 		'cas-ngs-splash',
 		cas_ngs_suite_url() . 'assets/js/cas-splash.js',
-		array( 'cas-ngs-gsap' ),
+		array(),
 		CAS_NGS_SUITE_VERSION,
 		true
 	);
@@ -635,7 +628,6 @@ function cas_ngs_header_render_callback( $attributes ) {
 
 	$out  = '<header class="cas-header" data-cas-header>';
 	$out .= '<div class="cas-dock-bar">';
-	$out .= '<canvas class="cas-dock-canvas" aria-hidden="true"></canvas>';
 	$out .= '<a class="cas-dock-brand" href="' . $home . '" '
 		. 'aria-label="' . esc_attr( $wm ) . '">'
 		. '<span class="cas-dock-logo">' . $logo . '</span>'
@@ -781,8 +773,7 @@ function cas_ngs_footer() {
 	echo do_shortcode( '[cas_ngs_footer]' );
 }
 
-// Assets: enqueued site-wide; engines stay inert without the markup, which
-// keeps blocks inside template parts working reliably.
+// Header/footer assets are lightweight and the header is used in site templates.
 function cas_ngs_suite_front_assets() {
 	$base = cas_ngs_suite_url();
 

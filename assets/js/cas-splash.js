@@ -4,29 +4,14 @@
   var overlay = document.getElementById('cas-splash');
   if (!overlay) return;
 
-  var shouldSkip = false;
   try {
     if (window.sessionStorage && sessionStorage.getItem('cas-ngs-splash-complete') === '1') {
-      shouldSkip = true;
+      overlay.setAttribute('aria-hidden', 'true');
+      return;
     }
   } catch (err) {}
 
-  if (shouldSkip) {
-    document.body.classList.remove('cas-splash-active');
-    document.body.classList.add('cas-splash-complete');
-    document.documentElement.classList.remove('cas-splash-active');
-    overlay.setAttribute('aria-hidden', 'true');
-    overlay.style.display = 'none';
-    return;
-  }
-
-  document.documentElement.classList.add('cas-splash-active');
-  document.body.classList.add('cas-splash-active');
-
-  const COLOR_PRIMARY = '#F4A950';
-  const COLOR_TEXT = '#F4A950';
-
-  const logoTargets = [
+  var logoTargets = [
     { topY: 100, botY: 412 },
     { topY: 200, botY: 300 },
     { topY: 160, botY: 340 },
@@ -35,128 +20,90 @@
     { topY: 200, botY: 300 },
     { topY: 100, botY: 412 }
   ];
+  var nodes = [];
+  var bonds = [];
+  for (var i = 0; i < 7; i++) {
+    nodes.push([
+      overlay.querySelector('#n' + i + '-top'),
+      overlay.querySelector('#n' + i + '-bot')
+    ]);
+    bonds.push(overlay.querySelector('#b' + i));
+  }
 
-  const centerY = 250;
-  const waveAmplitude = 130;
+  var mark = overlay.querySelector('#dna-mark');
+  var clip = overlay.querySelector('#clip-rect');
+  var startedAt = 0;
+  var duration = 1250;
+  var finished = false;
 
-  let animState = {
-    time: 0,
-    waveMix: 0,
-    logoMix: 0
-  };
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function easeOut(value) {
+    return 1 - Math.pow(1 - value, 3);
+  }
 
   function finishSplash() {
+    if (finished) return;
+    finished = true;
     try {
-      if (window.sessionStorage) {
-        sessionStorage.setItem('cas-ngs-splash-complete', '1');
-      }
+      if (window.sessionStorage) sessionStorage.setItem('cas-ngs-splash-complete', '1');
     } catch (err) {}
-
+    document.documentElement.classList.remove('cas-splash-active');
     document.body.classList.remove('cas-splash-active');
     document.body.classList.add('cas-splash-complete');
-    document.documentElement.classList.remove('cas-splash-active');
-    setTimeout(function () {
-      overlay.setAttribute('aria-hidden', 'true');
-      overlay.style.display = 'none';
-    }, 900);
+    overlay.setAttribute('aria-hidden', 'true');
+    window.setTimeout(function () { overlay.style.display = 'none'; }, 300);
   }
 
-  function setup() {
-    for (let i = 0; i < 7; i++) {
-      gsap.set('#n' + i + '-top', { opacity: 0 });
-      gsap.set('#n' + i + '-bot', { opacity: 0 });
-      gsap.set('#b' + i, { opacity: 0 });
+  function draw(now) {
+    var progress = clamp((now - startedAt) / duration, 0, 1);
+    var logoMix = easeOut(clamp((progress - 0.2) / 0.65, 0, 1));
+    var waveMix = easeOut(clamp(progress * 2.4, 0, 1)) * (1 - logoMix);
+    var time = progress * Math.PI * 2;
+
+    for (var i = 0; i < 7; i++) {
+      var waveOffset = Math.sin(time + i * 0.7) * 130 * waveMix;
+      var topY = 250 - waveOffset + (logoTargets[i].topY - (250 - waveOffset)) * logoMix;
+      var botY = 250 + waveOffset + (logoTargets[i].botY - (250 + waveOffset)) * logoMix;
+      if (nodes[i][0]) {
+        nodes[i][0].setAttribute('cy', topY.toFixed(1));
+        nodes[i][0].style.opacity = String(clamp(progress * 3, 0, 1));
+      }
+      if (nodes[i][1]) {
+        nodes[i][1].setAttribute('cy', botY.toFixed(1));
+        nodes[i][1].style.opacity = String(clamp(progress * 3, 0, 1));
+      }
+      if (bonds[i]) {
+        bonds[i].setAttribute('y1', topY.toFixed(1));
+        bonds[i].setAttribute('y2', botY.toFixed(1));
+        bonds[i].style.opacity = String(clamp((progress - 0.12) * 2.5, 0, 1));
+      }
     }
 
-    gsap.set('#dna-mark', {
-      x: 270,
-      scale: 0.50,
-      transformOrigin: 'center center',
-      opacity: 1
-    });
-
-    gsap.set('#brand-text', {
-      fill: COLOR_TEXT
-    });
-  }
-
-  function updateFrame() {
-    for (let i = 0; i < 7; i++) {
-      const topNode = document.getElementById('n' + i + '-top');
-      const botNode = document.getElementById('n' + i + '-bot');
-      const bond = document.getElementById('b' + i);
-      const target = logoTargets[i];
-
-      const phase = animState.time + (i * 0.7);
-      const waveOffset = Math.sin(phase) * waveAmplitude * animState.waveMix;
-
-      const waveTopY = centerY - waveOffset;
-      const waveBotY = centerY + waveOffset;
-
-      const finalTopY = gsap.utils.interpolate(waveTopY, target.topY, animState.logoMix);
-      const finalBotY = gsap.utils.interpolate(waveBotY, target.botY, animState.logoMix);
-
-      topNode.setAttribute('cy', finalTopY);
-      botNode.setAttribute('cy', finalBotY);
-      bond.setAttribute('y1', finalTopY);
-      bond.setAttribute('y2', finalBotY);
+    if (mark) {
+      var moveProgress = easeOut(clamp((progress - 0.45) / 0.48, 0, 1));
+      var x = 270 + (55 - 270) * moveProgress;
+      var scale = 0.5 + (0.2 - 0.5) * moveProgress;
+      mark.setAttribute('transform', 'translate(' + x.toFixed(1) + ' 0) scale(' + scale.toFixed(3) + ')');
     }
+    if (clip) clip.setAttribute('width', (650 * easeOut(clamp((progress - 0.55) / 0.4, 0, 1))).toFixed(1));
+
+    if (progress < 1) window.requestAnimationFrame(draw);
+    else finishSplash();
   }
 
   function startSplash() {
-    if (!window.gsap) {
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || !mark || !clip) {
       finishSplash();
       return;
     }
-
-    setup();
-
-    const tl = gsap.timeline({ onUpdate: updateFrame, onComplete: finishSplash });
-    const initialDots = ['#n0-top', '#n1-top', '#n2-bot', '#n3-bot', '#n4-bot', '#n5-top', '#n6-top'];
-
-    initialDots.forEach(function (dotId, i) {
-      tl.to(dotId, {
-        opacity: 1,
-        duration: 0.15,
-        ease: 'power1.out'
-      }, i * 0.12);
-    });
-
-    tl.to(['.bond', '.node'], {
-      opacity: 1,
-      duration: 0.3
-    }, 0.8);
-
-    tl.to(animState, {
-      waveMix: 1,
-      duration: 1.2,
-      ease: 'power2.out'
-    }, 0.8);
-
-    tl.to(animState, {
-      time: Math.PI * 1,
-      duration: 1.0,
-      ease: 'none'
-    }, 0.8);
-
-    tl.to(animState, {
-      logoMix: 1,
-      duration: 1.8,
-      ease: 'power3.inOut'
-    }, '-=1.5');
-
-    tl.to('#dna-mark', {
-      x: 55,
-      scale: 0.20,
-      duration: 1.5,
-      ease: 'power3.inOut'
-    }, '+=0.3');
-
-    tl.to('#clip-rect', {
-      width: 650,
-      duration: 1.2,
-      ease: 'power2.out'
-    }, '+=0.1');
+    document.documentElement.classList.add('cas-splash-active');
+    document.body.classList.add('cas-splash-active');
+    startedAt = performance.now();
+    window.requestAnimationFrame(draw);
   }
 
   if (document.readyState === 'loading') {

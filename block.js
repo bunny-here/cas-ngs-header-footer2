@@ -177,7 +177,6 @@
 
     return [
       el("div", { className: "cas-dock-bar", key: "bar" },
-        el("canvas", { className: "cas-dock-canvas", "aria-hidden": "true" }),
         el("a", { className: "cas-dock-brand", href: "/", "aria-label": att.wordmark || "Home" },
           el("span", { className: "cas-dock-logo" },
             att.logoUrl ? el("img", { src: att.logoUrl, alt: "" }) : LEAF),

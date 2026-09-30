@@ -66,6 +66,7 @@
     var modelUrl = container.getAttribute('data-model-url') ||
       (window.casBioBlocksData && window.casBioBlocksData.defaultModelUrl) ||
       '/wp-content/plugins/cas-ngs-header-footer/assets/models/dna.glb';
+    var isSmallViewport = window.innerWidth < 768;
 
     /* palette from computed CSS custom properties (theme presets win) */
     var PAL = {
@@ -122,14 +123,14 @@
     /* ── renderer / scene / studio lighting ────────────────────── */
     var renderer;
     try {
-      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+      renderer = new THREE.WebGLRenderer({ antialias: !isSmallViewport, powerPreference: isSmallViewport ? 'low-power' : 'high-performance' });
     } catch (e) {
       var failEl2 = container.querySelector('.cor3d-fail');
       if (failEl2) failEl2.style.display = 'flex';
       return;
     }
     renderer.setClearColor(PAL.bg, 1);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isSmallViewport ? 1.25 : 1.5));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.domElement.className = 'gl';
@@ -155,7 +156,8 @@
     sun.position.set(6, 18, -12);
     sun.target.position.set(0, 0, -26);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048);
+    var shadowSize = isSmallViewport ? 512 : 1024;
+    sun.shadow.mapSize.set(shadowSize, shadowSize);
     sun.shadow.camera.left = -20; sun.shadow.camera.right = 20;
     sun.shadow.camera.top = 20;   sun.shadow.camera.bottom = -20;
     sun.shadow.camera.near = 2;   sun.shadow.camera.far = 70;
@@ -844,6 +846,7 @@
         onComplete: function () {
           isAnimating = false;
           if (onDone) onDone();
+          setObserver(!passed && inPinZone());
         },
         overwrite: 'auto'
       });
@@ -908,6 +911,7 @@
       if (!isAnimating) {
         setObserver(!passed && inPinZone());
       }
+      requestFrame();
     }, { passive: true });
 
     dots.forEach(function (dot) {
@@ -944,11 +948,17 @@
           glideToStation(clamp(Math.round(scrollP() * 3), 0, 3));
         }
         setCardStation(clamp(Math.round(state.p * 3), 0, 3));
+        requestFrame();
       }, 180);
     });
 
     document.addEventListener('visibilitychange', function () {
       state.running = !document.hidden;
+      if (state.running) requestFrame();
+      else if (frameId) {
+        cancelAnimationFrame(frameId);
+        frameId = 0;
+      }
     });
 
     /* ── HUD update ────────────────────────────────────────────── */
@@ -978,10 +988,17 @@
     var clock = new THREE.Clock();
     var m4 = new THREE.Matrix4(), qt = new THREE.Quaternion(),
       sc = new THREE.Vector3(), posV = new THREE.Vector3();
+    var frameId = 0;
+
+    function requestFrame() {
+      if (state.running && !document.hidden && !frameId) {
+        frameId = requestAnimationFrame(frame);
+      }
+    }
 
     function frame() {
-      requestAnimationFrame(frame);
-      if (!state.running) { clock.getDelta(); return; }
+      frameId = 0;
+      if (!state.running || document.hidden) return;
 
       /* skip work entirely when the block is far offscreen */
       var y = window.scrollY;
@@ -1106,13 +1123,15 @@
       updateDrawGlyphs(dt);
       if (composer) composer.render();
       else renderer.render(scene, camera);
+      requestFrame();
     }
 
     /* ── ignition (no splash: Frame 1 renders immediately) ─────── */
     rainMat.uniforms.uAtlas.value = texAtlas;
     setCardStation(0);
     currentSec = 0;
-    frame();
+    container.classList.add('cor3d-enhanced');
+    requestFrame();
   }
 
   function bootAll() {
@@ -1124,10 +1143,33 @@
     if (!roots.length) return;
     /* marks the document so the full-bleed overflow guard applies */
     document.documentElement.classList.add('cor3d-active');
-    Array.prototype.forEach.call(roots, function (container) {
+
+    function startWhenVisible(container) {
       if (container.getAttribute('data-cor3d-init') === 'true') return;
       container.setAttribute('data-cor3d-init', 'true');
-      initCorridor(container);
+      container.classList.add('cor3d-started');
+
+      // Let the static first-card fallback paint before constructing WebGL.
+      window.requestAnimationFrame(function () {
+        window.setTimeout(function () {
+          initCorridor(container);
+        }, 0);
+      });
+    }
+
+    Array.prototype.forEach.call(roots, function (container) {
+      if (container.getAttribute('data-cor3d-init') === 'true') return;
+
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+          if (!entries.some(function (entry) { return entry.isIntersecting; })) return;
+          observer.disconnect();
+          startWhenVisible(container);
+        }, { rootMargin: '0px' });
+        observer.observe(container);
+      } else {
+        startWhenVisible(container);
+      }
     });
   }
 

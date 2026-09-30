@@ -1417,10 +1417,20 @@
         gsap.registerPlugin(ScrollTrigger);
       }
 
+      function isInInitialViewport(el) {
+        var rect = el.getBoundingClientRect();
+        return rect.bottom > 0 && rect.top < window.innerHeight;
+      }
+
       // Fade Up Elements
       gsap.utils.toArray('.cas-bio-block .gsap-fade-up, .cas-act-1 .gsap-fade-up, .cas-act-2 .gsap-fade-up, .cas-act-3 .gsap-fade-up, .cas-act-4 .gsap-fade-up').forEach(function (el, i) {
         if (el.getAttribute('data-gsap-init') === 'true') return;
         el.setAttribute('data-gsap-init', 'true');
+
+        if (prefersReduced || isInInitialViewport(el)) {
+          gsap.set(el, { opacity: 1, y: 0 });
+          return;
+        }
 
         gsap.fromTo(el,
           { opacity: 0, y: 30 },
@@ -1443,6 +1453,11 @@
       gsap.utils.toArray('.cas-bio-block .gsap-scale-in, .cas-act-1 .gsap-scale-in, .cas-act-2 .gsap-scale-in, .cas-act-3 .gsap-scale-in, .cas-act-4 .gsap-scale-in').forEach(function (el, i) {
         if (el.getAttribute('data-gsap-scale-init') === 'true') return;
         el.setAttribute('data-gsap-scale-init', 'true');
+
+        if (prefersReduced || isInInitialViewport(el)) {
+          gsap.set(el, { opacity: 1, scale: 1, y: 0 });
+          return;
+        }
 
         gsap.fromTo(el,
           { opacity: 0, scale: 0.95, y: 20 },
@@ -1468,6 +1483,11 @@
         if (heroFrame.getAttribute('data-frame-init') === 'true') return;
         heroFrame.setAttribute('data-frame-init', 'true');
 
+        if (prefersReduced || isInInitialViewport(heroFrame)) {
+          gsap.set(heroFrame, { opacity: 1, y: 0, scale: 1 });
+          return;
+        }
+
         gsap.fromTo(heroFrame,
           { opacity: 0, y: 35, scale: 0.97 },
           {
@@ -1484,7 +1504,7 @@
       // Split words animation on hero titles
       var heroTitles = document.querySelectorAll('.hero-title');
       heroTitles.forEach(function (heroTitle) {
-        if (prefersReduced || heroTitle.hasAttribute('data-words-split')) return;
+        if (prefersReduced || isInInitialViewport(heroTitle) || heroTitle.hasAttribute('data-words-split')) return;
         heroTitle.setAttribute('data-words-split', 'true');
 
         var words = heroTitle.textContent.trim().split(/\s+/);

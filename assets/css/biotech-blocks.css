@@ -1330,9 +1330,9 @@ body:has([data-cas-dock-wrapper]) .cas-dock-wrapper,
   .capacity-mini-grid { grid-template-columns: 1fr; }
 }
 
-/* GSAP Pre-Animation Classes */
-.gsap-fade-up { opacity: 0; transform: translateY(28px); }
-.gsap-scale-in { opacity: 0; transform: scale(0.96); }
+/* Motion is progressive enhancement; content stays visible without JavaScript. */
+.gsap-fade-up,
+.gsap-scale-in { opacity: 1; transform: none; }
 
 /* ==========================================================================
    FULL-VIEWPORT BREAKOUT — All 4 Act Blocks

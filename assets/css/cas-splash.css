@@ -5,20 +5,6 @@
   font-style: normal;
 }
 
-html.cas-splash-active,
-html.cas-splash-active body {
-  margin: 0;
-  overflow: hidden;
-}
-
-html.cas-splash-active body > *:not(#cas-splash) {
-  visibility: hidden !important;
-}
-
-body.cas-splash-complete > *:not(#cas-splash) {
-  visibility: visible !important;
-}
-
 #cas-splash {
   --cas-splash-bg: #0F1314;
   --cas-splash-node: #F4A950;
@@ -28,17 +14,22 @@ body.cas-splash-complete > *:not(#cas-splash) {
   position: fixed;
   inset: 0;
   z-index: 2147483647;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   background-color: var(--cas-splash-bg);
   opacity: 1;
   visibility: visible;
-  transition: opacity 0.8s ease, visibility 0.8s ease, transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease;
   pointer-events: none;
 }
 
+html.cas-splash-active #cas-splash {
+  display: flex;
+}
+
 body.cas-splash-complete #cas-splash {
+  display: flex;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-120%);
